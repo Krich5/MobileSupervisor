@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Supervisor Controls</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #049fd9;
+      --primary-dark: #037ca8;
+      --bg-gradient-start: #0a1628;
+      --bg-gradient-end: #1a2940;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Login Screen Styles */
+    #login-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-container {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 4px 12px rgba(4, 159, 217, 0.3);
+    }
+
+    .logo svg {
+      width: 48px;
+      height: 48px;
+      fill: white;
+    }
+
+    h1 {
+      color: var(--text-primary);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(4, 159, 217, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .login-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(4, 159, 217, 0.3);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: #fee;
+      color: var(--error-color);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 16px;
+      border-left: 4px solid var(--error-color);
+    }
+
+    /* App Screen Styles */
+    #app-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app-screen.active {
+      display: flex;
+    }
+
+    /* Header */
+    .app-header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-logo svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title h2 {
+      color: var(--text-primary);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .header-subtitle {
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .logout-btn {
+      background: none;
+      border: 2px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .logout-btn:active {
+      transform: scale(0.95);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Content Area */
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 0;
+    }
+
+    /* Loading State */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 20px;
+    }
+
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(4, 159, 217, 0.2);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      color: var(--text-secondary);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    /* Configuration Info */
+    .config-info {
+      background: rgba(255, 255, 255, 0.9);
+      margin: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .config-info h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .config-row:last-child {
+      border-bottom: none;
+    }
+
+    .config-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .config-value {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      word-break: break-all;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 380px) {
+      .login-container {
+        padding: 32px 24px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .header-title h2 {
+        font-size: 16px;
+      }
+
+      .logout-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+
+    /* Safe area insets for iPhone */
+    @supports (padding: max(0px)) {
+      body {
+        padding-top: max(0px, env(safe-area-inset-top));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+      }
+
+      .app-header {
+        padding-top: max(16px, env(safe-area-inset-top) + 8px);
+      }
+    }
+
+    /* Custom scrollbar */
+    .app-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .app-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .app-content::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <div class="login-container">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+          <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z"/>
+        </svg>
+      </div>
+      <h1>Supervisor Controls</h1>
+      <p class="subtitle">Webex Contact Center Mobile Manager</p>
+      <button id="login-button" class="login-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+        </svg>
+        Sign in with Webex
+      </button>
+      <div id="login-error" class="error-message" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- App Screen -->
+  <div id="app-screen">
+    <div class="app-header">
+      <div class="header-left">
+        <div class="header-logo">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+            <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z"/>
+          </svg>
+        </div>
+        <div class="header-title">
+          <h2>Supervisor Controls</h2>
+          <span class="header-subtitle" id="org-name">Loading...</span>
+        </div>
+      </div>
+      <button id="logout-button" class="logout-btn">Logout</button>
+    </div>
+    
+    <div class="app-content">
+      <div id="loading-state" class="loading-container">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading configuration...</div>
+      </div>
+      
+      <div id="config-display" class="config-info" style="display: none;">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.6;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          Configuration Info
+        </h3>
+        <div class="config-row">
+          <div class="config-label">Organization ID</div>
+          <div class="config-value" id="display-org-id">-</div>
+        </div>
+        <div class="config-row">
+          <div class="config-label">Variables Config</div>
+          <div class="config-value" id="display-variables">Not configured</div>
+        </div>
+      </div>
+      
+      <div id="widget-container"></div>
+    </div>
+  </div>
+
+  <!-- SupervisorControls Web Component Script -->
+  <script src="SupervisorControls.js"></script>
+
+  <!-- OAuth & App Logic -->
+  <script>
+    // ============================================
+    // Configuration
+    // ============================================
+    const CONFIG = {
+      clientId: 'C0a989aea89cd4f3d690eed9ce5d5a3c3687ed8790fcec3a5398a097b0f09df17',
+      clientSecret: '6cdca56098b5d76dd5218efe768af9b7340007d9af3e95388caf5a76ff25a42f', 
+      redirectUri: 'https://cxasteam.bitbucket.io/MobileSupervisor/Index.html',
+      authorizationUrl: 'https://webexapis.com/v1/authorize',
+      tokenUrl: 'https://webexapis.com/v1/access_token',
+      scope: 'spark:all', // Adjust scope as needed
+      orgId: 'YOUR_ORG_ID_HERE', // TODO: Add your organization ID
+      
+      // Global Variables Configuration
+      // TODO: Update with your actual global variable IDs
+      // Format: JSON string or array of variable configs
+      variables: JSON.stringify([
+        {
+          "varId": "GLOBAL_VAR_ID_1",
+          "displayName": "Holiday Message",
+          "description": "Message for holiday closures"
+        },
+        {
+          "varId": "GLOBAL_VAR_ID_2", 
+          "displayName": "After Hours",
+          "description": "After hours toggle"
+        }
+        // Add more variables as needed
+      ])
+    };
+
+    // ============================================
+    // OAuth Manager
+    // ============================================
+    class OAuthManager {
+      constructor(config) {
+        this.config = config;
+        this.tokenKey = 'webex_access_token';
+        this.refreshKey = 'webex_refresh_token';
+        this.expiryKey = 'webex_token_expiry';
+      }
+
+      // Generate random state for PKCE
+      generateState() {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      // Start OAuth flow
+      login() {
+        const state = this.generateState();
+        sessionStorage.setItem('oauth_state', state);
+
+        const params = new URLSearchParams({
+          client_id: this.config.clientId,
+          response_type: 'code',
+          redirect_uri: this.config.redirectUri,
+          scope: this.config.scope,
+          state: state
+        });
+
+        window.location.href = `${this.config.authorizationUrl}?${params}`;
+      }
+
+      // Handle OAuth callback
+      async handleCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+
+        if (error) {
+          throw new Error(`OAuth error: ${error}`);
+        }
+
+        if (!code) {
+          return false; // Not a callback
+        }
+
+        // Verify state
+        const savedState = sessionStorage.getItem('oauth_state');
+        if (state !== savedState) {
+          throw new Error('Invalid state parameter');
+        }
+
+        // Exchange code for token
+        await this.exchangeCodeForToken(code);
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, this.config.redirectUri);
+        
+        return true;
+      }
+
+      // Exchange authorization code for access token
+      async exchangeCodeForToken(code) {
+        const params = new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: this.config.clientId,
+          client_secret: this.config.clientSecret,
+          code: code,
+          redirect_uri: this.config.redirectUri
+        });
+
+        const response = await fetch(this.config.tokenUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params
+        });
+
+        if (!response.ok) {
+          const error = await response.text();
+          throw new Error(`Token exchange failed: ${error}`);
+        }
+
+        const data = await response.json();
+        this.saveToken(data);
+      }
+
+      // Save token data
+      saveToken(data) {
+        localStorage.setItem(this.tokenKey, data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem(this.refreshKey, data.refresh_token);
+        }
+        
+        // Calculate expiry time (with 5 minute buffer)
+        const expiryTime = Date.now() + ((data.expires_in - 300) * 1000);
+        localStorage.setItem(this.expiryKey, expiryTime.toString());
+      }
+
+      // Get current access token
+      getAccessToken() {
+        return localStorage.getItem(this.tokenKey);
+      }
+
+      // Check if token is valid
+      isTokenValid() {
+        const token = this.getAccessToken();
+        if (!token) return false;
+
+        const expiry = parseInt(localStorage.getItem(this.expiryKey) || '0');
+        return Date.now() < expiry;
+      }
+
+      // Refresh access token
+      async refreshToken() {
+        const refreshToken = localStorage.getItem(this.refreshKey);
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const params = new URLSearchParams({
+          grant_type: 'refresh_token',
+          client_id: this.config.clientId,
+          client_secret: this.config.clientSecret,
+          refresh_token: refreshToken
+        });
+
+        const response = await fetch(this.config.tokenUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params
+        });
+
+        if (!response.ok) {
+          this.logout();
+          throw new Error('Token refresh failed');
+        }
+
+        const data = await response.json();
+        this.saveToken(data);
+      }
+
+      // Logout
+      logout() {
+        localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem(this.refreshKey);
+        localStorage.removeItem(this.expiryKey);
+        sessionStorage.removeItem('oauth_state');
+      }
+
+      // Get valid token (refresh if needed)
+      async getValidToken() {
+        if (this.isTokenValid()) {
+          return this.getAccessToken();
+        }
+
+        await this.refreshToken();
+        return this.getAccessToken();
+      }
+    }
+
+    // ============================================
+    // App Manager
+    // ============================================
+    class App {
+      constructor() {
+        this.oauth = new OAuthManager(CONFIG);
+        this.widget = null;
+        
+        this.loginScreen = document.getElementById('login-screen');
+        this.appScreen = document.getElementById('app-screen');
+        this.loginButton = document.getElementById('login-button');
+        this.logoutButton = document.getElementById('logout-button');
+        this.loginError = document.getElementById('login-error');
+        this.loadingState = document.getElementById('loading-state');
+        this.widgetContainer = document.getElementById('widget-container');
+        this.configDisplay = document.getElementById('config-display');
+        
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.loginButton.addEventListener('click', () => this.handleLogin());
+        this.logoutButton.addEventListener('click', () => this.handleLogout());
+      }
+
+      async init() {
+        try {
+          // Check if this is an OAuth callback
+          const isCallback = await this.oauth.handleCallback();
+          
+          if (isCallback || this.oauth.isTokenValid()) {
+            await this.showApp();
+          } else {
+            this.showLogin();
+          }
+        } catch (error) {
+          console.error('Initialization error:', error);
+          this.showError(error.message);
+          this.showLogin();
+        }
+      }
+
+      handleLogin() {
+        this.loginButton.disabled = true;
+        this.loginButton.innerHTML = '<div class="spinner"></div> Connecting...';
+        this.oauth.login();
+      }
+
+      handleLogout() {
+        this.oauth.logout();
+        this.showLogin();
+        this.widgetContainer.innerHTML = '';
+        this.widget = null;
+      }
+
+      showLogin() {
+        this.loginScreen.style.display = 'flex';
+        this.appScreen.classList.remove('active');
+        this.loginButton.disabled = false;
+        this.loginButton.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+          </svg>
+          Sign in with Webex
+        `;
+      }
+
+      showError(message) {
+        this.loginError.textContent = message;
+        this.loginError.style.display = 'block';
+        setTimeout(() => {
+          this.loginError.style.display = 'none';
+        }, 5000);
+      }
+
+      async showApp() {
+        this.loginScreen.style.display = 'none';
+        this.appScreen.classList.add('active');
+        
+        try {
+          const token = await this.oauth.getValidToken();
+          
+          // Update org name in header
+          document.getElementById('org-name').textContent = `Org: ${CONFIG.orgId}`;
+          
+          // Show config info
+          this.showConfigInfo();
+          
+          // Load the widget
+          await this.loadWidget(token);
+          
+        } catch (error) {
+          console.error('Error loading app:', error);
+          this.showError('Failed to load supervisor controls. Please try again.');
+          setTimeout(() => this.handleLogout(), 2000);
+        }
+      }
+
+      showConfigInfo() {
+        document.getElementById('display-org-id').textContent = CONFIG.orgId;
+        
+        try {
+          const vars = JSON.parse(CONFIG.variables);
+          if (Array.isArray(vars)) {
+            document.getElementById('display-variables').textContent = 
+              `${vars.length} variable(s) configured`;
+          } else {
+            document.getElementById('display-variables').textContent = 'Custom JSON config';
+          }
+        } catch (e) {
+          document.getElementById('display-variables').textContent = 'Invalid configuration';
+        }
+        
+        this.configDisplay.style.display = 'block';
+      }
+
+      async loadWidget(token) {
+        this.loadingState.style.display = 'flex';
+        
+        // Create the widget element
+        this.widget = document.createElement('global-variable-manager');
+        this.widget.setAttribute('token', token);
+        this.widget.setAttribute('org-id', CONFIG.orgId);
+        this.widget.setAttribute('variables', CONFIG.variables);
+        
+        // Wait a bit for the widget to initialize
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        this.widgetContainer.appendChild(this.widget);
+        this.loadingState.style.display = 'none';
+      }
+    }
+
+    // ============================================
+    // Initialize App
+    // ============================================
+    const app = new App();
+    
+    // Wait for DOM and web component to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => app.init());
+    } else {
+      app.init();
+    }
+
+    // Handle token expiration during use
+    setInterval(async () => {
+      if (app.oauth.isTokenValid() && app.widget) {
+        try {
+          const token = await app.oauth.getValidToken();
+          app.widget.setAttribute('token', token);
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+          app.handleLogout();
+        }
+      }
+    }, 60000); // Check every minute
+  </script>
+</body>
+</html>
